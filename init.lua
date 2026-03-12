@@ -267,6 +267,40 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- for file icons
+      'MunifTanjim/nui.nvim',
+    },
+    config = function()
+      require('neo-tree').setup {
+        close_if_last_window = true, -- close neotree if it's the last window
+        window = {
+          position = 'left',
+          width = 35,
+          mappings = {
+            ['<space>'] = 'open',
+            ['<cr>'] = 'toggle_node',
+          },
+        },
+        filesystem = {
+          follow_current_file = {
+            enabled = true, -- auto-expand tree to show current file
+          },
+          hide_dotfiles = false,
+          filtered_items = {
+            hide_gitignored = true,
+          },
+        },
+      }
+
+      -- Keymap to toggle the tree
+      vim.keymap.set('n', '<leader>e', '<cmd>Neotree toggle<cr>')
+    end,
+  },
   -- NOTE: Plugins can be added via a link or github org/name. To run setup automatically, use `opts = {}`
   { 'NMAC427/guess-indent.nvim', opts = {} },
 
@@ -390,6 +424,9 @@ require('lazy').setup({
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
       require('telescope').setup {
+        defaults = require('telescope.themes').get_ivy {
+          -- your other defaults can go here
+        },
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
@@ -579,6 +616,12 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
+          if client and client:supports_method('textDocument/formatting', event.buf) then
+            vim.api.nvim_create_autocmd('BufWritePre', {
+              buffer = event.buf,
+              callback = function() vim.lsp.buf.format { bufnr = event.buf } end,
+            })
+          end
           if client and client:supports_method('textDocument/documentHighlight', event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -638,6 +681,7 @@ require('lazy').setup({
             },
           },
         },
+        ruff = {},
         -- rust_analyzer = {},
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
