@@ -218,6 +218,9 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
+vim.keymap.set('n', 'ùd', function() vim.diagnostic.goto_next { float = false } end, { desc = 'Go to next diagnostic' })
+vim.keymap.set('n', 'µd', function() vim.diagnostic.goto_prev { float = false } end, { desc = 'Go to previous diagnostic' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -229,6 +232,15 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function() vim.hl.on_yank() end,
 })
+
+vim.filetype.add {
+  extension = { zsh = 'zsh' },
+  filename = {
+    ['.zshrc'] = 'zsh',
+    ['.zshenv'] = 'zsh',
+    ['.zprofile'] = 'zsh',
+  },
+}
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -418,7 +430,24 @@ require('lazy').setup({
           local buf = event.buf
 
           -- Find references for the word under your cursor.
-          vim.keymap.set('n', 'grr', builtin.lsp_references, { buffer = buf, desc = '[G]oto [R]eferences' })
+          vim.keymap.set('n', 'grr', function()
+            local clients = vim.lsp.get_clients { bufnr = 0 }
+            local has_basedpyright = vim.tbl_filter(function(c) return c.name == 'basedpyright' end, clients)
+
+            if #has_basedpyright > 0 then
+              builtin.lsp_references {
+                entry_maker = function(entry)
+                  local made = require('telescope.make_entry').gen_from_quickfix()(entry)
+                  if made and (entry.text:match '^%s*import%s' or entry.text:match '^%s*from%s+%S+%s+import%s') then return nil end
+                  return made
+                end,
+              }
+            else
+              builtin.lsp_references()
+            end
+          end, { buffer = buf, desc = '[G]oto [R]eferences (excluding imports)' })
+
+          vim.keymap.set('n', 'grR', builtin.lsp_references, { buffer = buf, desc = '[G]oto [R]eferences' })
 
           -- Jump to the implementation of the word under your cursor.
           -- Useful when your language has ways of declaring types without an actual implementation.
@@ -595,10 +624,17 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {
+        basedpyright = {
           settings = {
-            python = {
-              pythonPath = '.venv/bin/python',
+            basedpyright = {
+              analysis = {
+                typeCheckingMode = 'off',
+                autoSearchPaths = true,
+                -- Without this mode, suggesting missing imports was way less good
+                diagnosticMode = 'workspace',
+                venvPath = '.',
+                venv = '.venv',
+              },
             },
           },
         },
@@ -627,6 +663,7 @@ require('lazy').setup({
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+      vim.lsp.set_log_level 'debug'
       for name, server in pairs(servers) do
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
         vim.lsp.config(name, server)
@@ -858,7 +895,7 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     config = function()
-      local filetypes = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python' }
+      local filetypes = { 'zsh', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python' }
       require('nvim-treesitter').install(filetypes)
       vim.api.nvim_create_autocmd('FileType', {
         pattern = filetypes,
