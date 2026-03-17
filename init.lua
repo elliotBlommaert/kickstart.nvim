@@ -196,6 +196,13 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('n', '<leader>t', function()
+  vim.cmd.vnew()
+  vim.cmd.term()
+  vim.cmd.wincmd 'J'
+  vim.api.nvim_win_set_height(0, 15)
+  vim.cmd.startinsert()
+end)
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -221,6 +228,8 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 vim.keymap.set('n', 'ùd', function() vim.diagnostic.goto_next { float = false } end, { desc = 'Go to next diagnostic' })
 vim.keymap.set('n', 'µd', function() vim.diagnostic.goto_prev { float = false } end, { desc = 'Go to previous diagnostic' })
 
+vim.keymap.set('n', 'ùc', '[c', { remap = true, desc = 'Prev diff hunk' })
+vim.keymap.set('n', 'µc', ']c', { remap = true, desc = 'Next diff hunk' })
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -268,6 +277,9 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 
 require('lazy').setup({
+  {
+    'sindrets/diffview.nvim',
+  },
   {
     'NeogitOrg/neogit',
     lazy = true,
@@ -477,6 +489,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader>sc', builtin.commands, { desc = '[S]earch [C]ommands' })
+      vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = '[S]earch [C]ommands' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- This runs on LSP attach per buffer (see main LSP attach function in 'neovim/nvim-lspconfig' config for more info,
