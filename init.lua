@@ -1015,38 +1015,23 @@ require('lazy').setup({
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   {
-    'yetone/avante.nvim',
+    'zbirenbaum/copilot.lua',
+    cmd = 'Copilot',
     event = 'VeryLazy',
-    version = false,
-    build = 'make',
-    ---@module 'avante'
-    ---@type avante.Config
     opts = {
-      provider = 'claude',
-      providers = {
-        claude = {
-          endpoint = 'https://api.anthropic.com',
-          model = 'claude-opus-4-20250514',
-          api_key_name = 'ANTHROPIC_API_KEY',
-          extra_request_body = {
-            temperature = 0.75,
-            max_tokens = 16384,
-          },
+      suggestion = {
+        enabled = true,
+        auto_trigger = true,
+        keymap = {
+          accept = '<Tab>',
+          accept_word = '<C-Right>',
+          accept_line = '<C-Down>',
+          next = '<M-]>',
+          prev = '<M-[>',
+          dismiss = '<C-]>',
         },
       },
-    },
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'MunifTanjim/nui.nvim',
-      'nvim-tree/nvim-web-devicons',
-      'nvim-telescope/telescope.nvim',
-      {
-        'MeanderingProgrammer/render-markdown.nvim',
-        opts = {
-          file_types = { 'markdown', 'Avante' },
-        },
-        ft = { 'markdown', 'Avante' },
-      },
+      panel = { enabled = false },
     },
   },
 
