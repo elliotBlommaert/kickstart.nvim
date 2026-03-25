@@ -187,6 +187,14 @@ vim.diagnostic.config {
   jump = { float = true },
 }
 
+vim.keymap.set('n', '<leader>td', function()
+  if vim.diagnostic.is_enabled() then
+    vim.diagnostic.enable(false)
+  else
+    vim.diagnostic.enable()
+  end
+end, { desc = 'Toggle diagnostics' })
+
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -202,6 +210,11 @@ vim.keymap.set('n', '<leader>t', function()
   vim.cmd.wincmd 'J'
   vim.api.nvim_win_set_height(0, 15)
   vim.cmd.startinsert()
+end)
+
+vim.keymap.set('n', '<leader>gB', function()
+  require('gitsigns').blame_line { full = true }
+  -- The popup shows the hash — press <CR> to open the commit in gitsigns' own viewer
 end)
 
 -- TIP: Disable arrow keys in normal mode
@@ -489,7 +502,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader>sc', builtin.commands, { desc = '[S]earch [C]ommands' })
-      vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = '[S]earch [C]ommands' })
+      vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = '[G]it [B]branches' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- This runs on LSP attach per buffer (see main LSP attach function in 'neovim/nvim-lspconfig' config for more info,
@@ -704,7 +717,7 @@ require('lazy').setup({
           settings = {
             basedpyright = {
               analysis = {
-                typeCheckingMode = 'off',
+                typeCheckingMode = 'basic',
                 autoSearchPaths = true,
                 -- Without this mode, suggesting missing imports was way less good
                 diagnosticMode = 'workspace',
