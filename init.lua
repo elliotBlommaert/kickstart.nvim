@@ -170,6 +170,7 @@ vim.o.confirm = true
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+vim.keymap.set('n', 'q', '<cmd>tabclose<CR>', { desc = 'Close tab' })
 
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
@@ -180,7 +181,7 @@ vim.diagnostic.config {
   underline = { severity = vim.diagnostic.severity.ERROR },
 
   -- Can switch between these as you prefer
-  virtual_text = true, -- Text shows up at the end of the line
+  virtual_text = true,   -- Text shows up at the end of the line
   virtual_lines = false, -- Teest shows up underneath the line, with virtual lines
 
   -- Auto open the float, so you can easily read the errors when jumping with `[d` and `]d`
@@ -197,20 +198,6 @@ end, { desc = 'Toggle diagnostics' })
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
--- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
--- is not what someone will guess without a bit more experience.
---
--- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
--- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-vim.keymap.set('n', '<leader>t', function()
-  vim.cmd.vnew()
-  vim.cmd.term()
-  vim.cmd.wincmd 'J'
-  vim.api.nvim_win_set_height(0, 15)
-  vim.cmd.startinsert()
-end)
 
 vim.keymap.set('n', '<leader>gB', function()
   require('gitsigns').blame_line { full = true }
@@ -239,7 +226,8 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
 vim.keymap.set('n', 'ùd', function() vim.diagnostic.goto_next { float = false } end, { desc = 'Go to next diagnostic' })
-vim.keymap.set('n', 'µd', function() vim.diagnostic.goto_prev { float = false } end, { desc = 'Go to previous diagnostic' })
+vim.keymap.set('n', 'µd', function() vim.diagnostic.goto_prev { float = false } end,
+  { desc = 'Go to previous diagnostic' })
 
 vim.keymap.set('n', 'ùc', '[c', { remap = true, desc = 'Prev diff hunk' })
 vim.keymap.set('n', 'µc', ']c', { remap = true, desc = 'Next diff hunk' })
@@ -249,10 +237,28 @@ vim.keymap.set('n', 'µc', ']c', { remap = true, desc = 'Next diff hunk' })
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.hl.on_yank()`
+vim.o.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
+  desc = 'Reload file if changed on disk',
+  group = vim.api.nvim_create_augroup('autoread-checktime', { clear = true }),
+  callback = function() vim.cmd 'checktime' end,
+})
+
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function() vim.hl.on_yank() end,
+})
+
+vim.api.nvim_create_autocmd('VimEnter', {
+  desc = 'Set cwd to git root if inside a git repo',
+  group = vim.api.nvim_create_augroup('git-root-cwd', { clear = true }),
+  callback = function()
+    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel 2>/dev/null')[1]
+    if vim.v.shell_error == 0 and git_root and git_root ~= '' then
+      vim.cmd('cd ' .. vim.fn.fnameescape(git_root))
+    end
+  end,
 })
 
 vim.filetype.add {
@@ -297,13 +303,19 @@ require('lazy').setup({
     'NeogitOrg/neogit',
     lazy = true,
     dependencies = {
-      'nvim-lua/plenary.nvim', -- required
-      'sindrets/diffview.nvim', -- optional
+      'nvim-lua/plenary.nvim',         -- required
+      'sindrets/diffview.nvim',        -- optional
       'nvim-telescope/telescope.nvim', -- optional
     },
     cmd = 'Neogit',
     keys = {
-      { '<leader>gg', '<cmd>Neogit<cr>', desc = 'Show Neogit UI' },
+      { '<leader>gg', '<cmd>Neogit<cr>',                                                      desc = '[G]it open' },
+      { '<leader>gc', '<cmd>Neogit log<cr>',                                                  desc = '[G]it [c]ommits' },
+      { '<leader>gf', '<cmd>Neogit fetch<cr>',                                                desc = '[G]it [f]etch' },
+      { '<leader>gp', '<cmd>Neogit push<cr>',                                                 desc = '[G]it [p]ush' },
+      { '<leader>gl', '<cmd>Neogit pull<cr>',                                                 desc = '[G]it pu[l]l' },
+      { '<leader>gd', '<cmd>DiffviewOpen<cr>',                                                desc = '[G]it [d]iff' },
+      { '<leader>gb', function() require('telescope.builtin').git_branches() end,             desc = '[G]it [b]ranches' },
     },
     opts = {
       integrations = {
@@ -401,8 +413,9 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
+        { '<leader>s', group = '[S]earch',   mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>g', group = '[G]it' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -444,7 +457,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -547,7 +560,8 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current workspace.
           -- Similar to document symbols, except searches over your entire project.
-          vim.keymap.set('n', 'gW', builtin.lsp_dynamic_workspace_symbols, { buffer = buf, desc = 'Open Workspace Symbols' })
+          vim.keymap.set('n', 'gW', builtin.lsp_dynamic_workspace_symbols,
+            { buffer = buf, desc = 'Open Workspace Symbols' })
 
           -- Jump to the type of the word under your cursor.
           -- Useful when you're not sure what type a variable is and you want to see
@@ -580,7 +594,8 @@ require('lazy').setup({
       )
 
       -- Shortcut for searching your Neovim configuration files
-      vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config' } end, { desc = '[S]earch [N]eovim files' })
+      vim.keymap.set('n', '<leader>sn', function() builtin.find_files { cwd = vim.fn.stdpath 'config' } end,
+        { desc = '[S]earch [N]eovim files' })
     end,
   },
 
@@ -596,7 +611,7 @@ require('lazy').setup({
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',    opts = {} },
 
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
@@ -696,7 +711,9 @@ require('lazy').setup({
           --
           -- This may be unwanted, since they displace some of your code
           if client and client:supports_method('textDocument/inlayHint', event.buf) then
-            map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, '[T]oggle Inlay [H]ints')
+            map('<leader>th',
+              function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end,
+              '[T]oggle Inlay [H]ints')
           end
         end,
       })
@@ -747,7 +764,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'lua-language-server', -- Lua Language server
-        'stylua', -- Used to format Lua code
+        'stylua',              -- Used to format Lua code
         -- You can add other tools here that you want Mason to install
       })
 
@@ -944,7 +961,7 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim',  event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'nvim-mini/mini.nvim',
@@ -985,7 +1002,8 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     config = function()
-      local filetypes = { 'zsh', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python' }
+      local filetypes = { 'zsh', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query',
+        'vim', 'vimdoc', 'python' }
       require('nvim-treesitter').install(filetypes)
       vim.api.nvim_create_autocmd('FileType', {
         pattern = filetypes,
@@ -1025,7 +1043,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   {
     'zbirenbaum/copilot.lua',
@@ -1078,6 +1096,38 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
+})
+
+-- When quitting the last normal window, close any remaining terminal/neogit windows
+vim.api.nvim_create_autocmd('QuitPre', {
+  callback = function()
+    local current_win = vim.api.nvim_get_current_win()
+
+    local function is_auxiliary(buf)
+      local ft = vim.bo[buf].filetype
+      local bt = vim.bo[buf].buftype
+      return bt == 'terminal' or ft:match('^Neogit') ~= nil
+    end
+
+    -- Only act when quitting a normal (non-auxiliary) window
+    if is_auxiliary(vim.api.nvim_win_get_buf(current_win)) then return end
+
+    -- Collect all other windows; bail if any show a normal buffer
+    local aux_wins = {}
+    for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+        if win == current_win then goto continue end
+        if not is_auxiliary(vim.api.nvim_win_get_buf(win)) then return end
+        table.insert(aux_wins, win)
+        ::continue::
+      end
+    end
+
+    -- All other windows are terminal/neogit; close them so nvim exits cleanly
+    for _, win in ipairs(aux_wins) do
+      vim.api.nvim_win_close(win, true)
+    end
+  end,
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
