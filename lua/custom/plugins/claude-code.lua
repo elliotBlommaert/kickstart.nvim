@@ -1,18 +1,18 @@
 return {
-  'greggh/claude-code.nvim',
+  'coder/claudecode.nvim',
   dependencies = {
-    'nvim-lua/plenary.nvim',
+    'folke/snacks.nvim',
   },
-  config = function()
-    require('claude-code').setup {
-      window = {
-        position = 'vertical', -- open as a vertical split (right side)
-        split_ratio = 0.35,
-      },
-      git = {
-        use_git_root = true, -- Set CWD to git root when opening Claude Code (if in git project)
-      },
-    }
-    vim.keymap.set('n', '<leader>tc', '<cmd>ClaudeCode<cr>', { desc = '[T]oggle [C]laude' })
-  end,
+  opts = {
+    split_side = 'right',
+    split_width_percentage = 0.35,
+  },
+  keys = {
+    { '<leader>tc', '<cmd>ClaudeCode<cr>', desc = '[T]oggle [C]laude' },
+    { '<leader>cf', '<cmd>ClaudeCodeFocus<cr>', desc = '[C]laude [F]ocus' },
+    { '<leader>cr', '<cmd>ClaudeCode --resume<cr>', desc = '[C]laude [R]esume' },
+    { '<leader>cs', '<cmd>ClaudeCodeSend<cr>', mode = 'v', desc = '[C]laude [S]end selection' },
+    { '<leader>ca', '<cmd>ClaudeCodeDiffAccept<cr>', desc = '[C]laude [A]ccept diff' },
+    { '<leader>cd', '<cmd>ClaudeCodeDiffDeny<cr>', desc = '[C]laude [D]eny diff' },
+  },
 }
