@@ -1015,7 +1015,7 @@ require('lazy').setup({
   {
     {
       'MeanderingProgrammer/treesitter-modules.nvim',
-      dependencies = { 'nvim-treesitter/nvim-treesitter' },
+      dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-treesitter/nvim-treesitter-textobjects' },
       opts = {
         incremental_selection = {
           enable = true,
@@ -1024,6 +1024,15 @@ require('lazy').setup({
             node_incremental = '<A-o>',
             scope_incremental = '<A-O>',
             node_decremental = '<A-i>',
+          },
+        },
+        textobjects = {
+          move = {
+            enable = true,
+            goto_next_start     = { ['ùm'] = '@function.outer' },
+            goto_previous_start = { ['µm'] = '@function.outer' },
+            goto_next_end       = { ['ùM'] = '@function.outer' },
+            goto_previous_end   = { ['µM'] = '@function.outer' },
           },
         },
       },
