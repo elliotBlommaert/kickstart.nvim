@@ -198,7 +198,6 @@ end, { desc = 'Toggle diagnostics' })
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
-
 vim.keymap.set('n', '<leader>gB', function()
   require('gitsigns').blame_line { full = true }
   -- The popup shows the hash — press <CR> to open the commit in gitsigns' own viewer
@@ -255,9 +254,7 @@ vim.api.nvim_create_autocmd('VimEnter', {
   group = vim.api.nvim_create_augroup('git-root-cwd', { clear = true }),
   callback = function()
     local git_root = vim.fn.systemlist('git rev-parse --show-toplevel 2>/dev/null')[1]
-    if vim.v.shell_error == 0 and git_root and git_root ~= '' then
-      vim.cmd('cd ' .. vim.fn.fnameescape(git_root))
-    end
+    if vim.v.shell_error == 0 and git_root and git_root ~= '' then vim.cmd('cd ' .. vim.fn.fnameescape(git_root)) end
   end,
 })
 
@@ -309,13 +306,13 @@ require('lazy').setup({
     },
     cmd = 'Neogit',
     keys = {
-      { '<leader>gg', '<cmd>Neogit<cr>',                                                      desc = '[G]it open' },
-      { '<leader>gc', '<cmd>Neogit log<cr>',                                                  desc = '[G]it [c]ommits' },
-      { '<leader>gf', '<cmd>Neogit fetch<cr>',                                                desc = '[G]it [f]etch' },
-      { '<leader>gp', '<cmd>Neogit push<cr>',                                                 desc = '[G]it [p]ush' },
-      { '<leader>gl', '<cmd>Neogit pull<cr>',                                                 desc = '[G]it pu[l]l' },
-      { '<leader>gd', '<cmd>DiffviewOpen<cr>',                                                desc = '[G]it [d]iff' },
-      { '<leader>gb', function() require('telescope.builtin').git_branches() end,             desc = '[G]it [b]ranches' },
+      { '<leader>gg', '<cmd>Neogit<cr>',                                          desc = '[G]it open' },
+      { '<leader>gc', '<cmd>Neogit log<cr>',                                      desc = '[G]it [c]ommits' },
+      { '<leader>gf', '<cmd>Neogit fetch<cr>',                                    desc = '[G]it [f]etch' },
+      { '<leader>gp', '<cmd>Neogit push<cr>',                                     desc = '[G]it [p]ush' },
+      { '<leader>gl', '<cmd>Neogit pull<cr>',                                     desc = '[G]it pu[l]l' },
+      { '<leader>gd', '<cmd>DiffviewOpen<cr>',                                    desc = '[G]it [d]iff' },
+      { '<leader>gb', function() require('telescope.builtin').git_branches() end, desc = '[G]it [b]ranches' },
     },
     opts = {
       integrations = {
@@ -1029,10 +1026,8 @@ require('lazy').setup({
         textobjects = {
           move = {
             enable = true,
-            goto_next_start     = { ['ùm'] = '@function.outer' },
+            goto_next_start = { ['ùm'] = '@function.outer' },
             goto_previous_start = { ['µm'] = '@function.outer' },
-            goto_next_end       = { ['ùM'] = '@function.outer' },
-            goto_previous_end   = { ['µM'] = '@function.outer' },
           },
         },
       },
@@ -1115,7 +1110,7 @@ vim.api.nvim_create_autocmd('QuitPre', {
     local function is_auxiliary(buf)
       local ft = vim.bo[buf].filetype
       local bt = vim.bo[buf].buftype
-      return bt == 'terminal' or ft:match('^Neogit') ~= nil
+      return bt == 'terminal' or ft:match '^Neogit' ~= nil
     end
 
     -- Only act when quitting a normal (non-auxiliary) window
