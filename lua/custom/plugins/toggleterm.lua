@@ -9,9 +9,6 @@ return {
           return math.floor(vim.o.columns * 0.4)
         end
       end,
-      on_open = function()
-        vim.schedule(function() vim.cmd 'startinsert' end)
-      end,
     }
 
     local Terminal = require('toggleterm.terminal').Terminal
@@ -19,15 +16,22 @@ return {
     -- Persistent bottom terminal
     local bottom = Terminal:new { direction = 'horizontal' }
 
-    vim.keymap.set('n', 't', function() bottom:toggle() end, { desc = 'Toggle bottom terminal' })
+    -- Focus terminal (open if needed), stay in normal mode
+    vim.keymap.set('n', 't', function()
+      if bottom:is_open() then
+        vim.api.nvim_set_current_win(bottom.window)
+      else
+        bottom:open()
+        vim.cmd 'stopinsert'
+      end
+    end, { desc = 'Go to terminal' })
 
-    -- Bottom terminal in current buffer's directory
-    vim.keymap.set(
-      'n',
-      'T',
-      function() Terminal:new({ direction = 'horizontal', dir = vim.fn.expand '%:p:h' }):toggle() end,
-      { desc = 'Toggle bottom terminal in buffer directory' }
-    )
+    -- Close terminal if open, otherwise do nothing
+    vim.keymap.set('n', 'T', function()
+      if bottom:is_open() then
+        bottom:close()
+      end
+    end, { desc = 'Close terminal' })
 
     -- Maximize/restore terminal height
     local maximized = false
@@ -39,10 +43,8 @@ return {
       end
       maximized = not maximized
     end
-    vim.keymap.set('n', '<C-f>', toggle_maximize, { desc = 'Toggle terminal fullscreen' })
-    vim.keymap.set('t', '<C-f>', function()
-      vim.schedule(toggle_maximize)
-    end, { desc = 'Toggle terminal fullscreen' })
+    vim.keymap.set('t', '<C-f>', function() vim.schedule(toggle_maximize) end, { desc = 'Toggle terminal fullscreen' })
+    vim.keymap.set('n', '<C-f>', function() vim.schedule(toggle_maximize) end, { desc = 'Toggle terminal fullscreen' })
 
     -- Exit terminal mode
     vim.keymap.set('t', '<C-Space>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })

@@ -84,6 +84,8 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+vim.lsp.set_log_level 'ERROR'
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -196,12 +198,22 @@ vim.keymap.set('n', '<leader>td', function()
   end
 end, { desc = 'Toggle diagnostics' })
 
+vim.keymap.set('n', '<leader>tC', function() require('copilot.suggestion').toggle_auto_trigger() end,
+  { desc = 'Toggle [C]opilot auto suggestions' })
+
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 vim.keymap.set('n', '<leader>gB', function()
   require('gitsigns').blame_line { full = true }
   -- The popup shows the hash — press <CR> to open the commit in gitsigns' own viewer
 end)
+
+-- Make <C-c> fire InsertLeave (unlike the default hard interrupt behaviour)
+vim.keymap.set('i', '<C-c>', '<Esc>', { desc = 'Exit insert mode' })
+
+-- Reselect visual selection after indenting
+vim.keymap.set('v', '<', '<gv', { desc = 'Indent left and reselect' })
+vim.keymap.set('v', '>', '>gv', { desc = 'Indent right and reselect' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -241,6 +253,16 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
   desc = 'Reload file if changed on disk',
   group = vim.api.nvim_create_augroup('autoread-checktime', { clear = true }),
   callback = function() vim.cmd 'checktime' end,
+})
+
+vim.api.nvim_create_autocmd('InsertLeave', {
+  desc = 'Dismiss Copilot suggestion when leaving insert mode',
+  group = vim.api.nvim_create_augroup('copilot-insert-leave', { clear = true }),
+  callback = function()
+    if package.loaded['copilot.suggestion'] then
+      require('copilot.suggestion').dismiss()
+    end
+  end,
 })
 
 vim.api.nvim_create_autocmd('TextYankPost', {
@@ -293,6 +315,10 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 
 require('lazy').setup({
+  {
+    'karb94/neoscroll.nvim',
+    opts = {},
+  },
   {
     'sindrets/diffview.nvim',
   },
