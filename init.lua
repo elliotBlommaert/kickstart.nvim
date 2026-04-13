@@ -259,9 +259,7 @@ vim.api.nvim_create_autocmd('InsertLeave', {
   desc = 'Dismiss Copilot suggestion when leaving insert mode',
   group = vim.api.nvim_create_augroup('copilot-insert-leave', { clear = true }),
   callback = function()
-    if package.loaded['copilot.suggestion'] then
-      require('copilot.suggestion').dismiss()
-    end
+    if package.loaded['copilot.suggestion'] then require('copilot.suggestion').dismiss() end
   end,
 })
 
@@ -1140,6 +1138,12 @@ require('lazy').setup({
       },
       panel = { enabled = false },
     },
+  },
+
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    ft = { 'markdown' },
+    opts = {},
   },
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
