@@ -18,7 +18,8 @@ return {
       ['<C-p>'] = 'actions.preview',
       ['<C-s>'] = false, -- don't shadow horizontal split
       ['<C-h>'] = false, -- don't shadow window nav
-      ['l'] = 'actions.select',
+      ['H'] = 'actions.parent',
+      ['L'] = 'actions.select',
     },
   },
   keys = {
