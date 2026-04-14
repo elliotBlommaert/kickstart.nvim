@@ -174,6 +174,18 @@ vim.o.confirm = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', 'q', '<cmd>tabclose<CR>', { desc = 'Close tab' })
 
+-- Copy visual selection as @file:start-end reference to clipboard (for Claude Code)
+vim.keymap.set('v', '<leader>cy', function()
+  local start_line = vim.fn.line 'v'
+  local end_line = vim.fn.line '.'
+  if start_line > end_line then
+    start_line, end_line = end_line, start_line
+  end
+  local ref = '@' .. vim.fn.expand '%:p' .. ':' .. start_line .. '-' .. end_line
+  vim.fn.setreg('+', ref)
+  vim.notify('Copied: ' .. ref, vim.log.levels.INFO)
+end, { desc = '[C]laude [Y]ank selection reference' })
+
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
 vim.diagnostic.config {
@@ -242,6 +254,9 @@ vim.keymap.set('n', 'µd', function() vim.diagnostic.goto_prev { float = false }
 
 vim.keymap.set('n', 'ùc', '[c', { remap = true, desc = 'Prev diff hunk' })
 vim.keymap.set('n', 'µc', ']c', { remap = true, desc = 'Next diff hunk' })
+
+vim.keymap.set('n', 'ùq', '<cmd>cprev<cr>', { desc = 'Previous quickfix item' })
+vim.keymap.set('n', 'µq', '<cmd>cnext<cr>', { desc = 'Next quickfix item' })
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 

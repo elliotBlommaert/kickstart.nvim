@@ -47,7 +47,7 @@ return {
     vim.keymap.set('n', '<C-f>', function() vim.schedule(toggle_maximize) end, { desc = 'Toggle terminal fullscreen' })
 
     -- Persistent Claude Code tab
-    local claude = Terminal:new { cmd = 'claude', direction = 'tab', close_on_exit = false }
+    local claude = Terminal:new { cmd = 'claude', direction = 'tab', close_on_exit = false, dir = 'git_dir' }
 
     vim.keymap.set('n', 'C', function()
       if claude:is_open() then
