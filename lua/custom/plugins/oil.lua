@@ -5,6 +5,13 @@ return {
   ---@type oil.SetupOpts
   opts = {
     default_file_explorer = true,
+    -- Notify the LSP when files are moved/deleted so it can update its index.
+    -- Without this, the server keeps stale entries and grr/diagnostics lag behind.
+    lsp_file_methods = {
+      enabled = true,
+      timeout_ms = 1000,
+      autosave_changes = false,
+    },
     columns = { 'icon', 'permissions', 'size', 'mtime' },
     view_options = {
       show_hidden = false,
