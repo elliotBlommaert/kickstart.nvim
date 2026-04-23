@@ -81,6 +81,46 @@ return { -- Collection of various small independent plugins/modules
     ---@diagnostic disable-next-line: duplicate-set-field
     statusline.section_location = function() return '%2l:%-2v/%L' end
 
+    -- Turn the location badge orange when the current buffer has unsaved changes.
+    -- Give the repo name its own teal colour while sharing the devinfo background.
+    local function set_modified_hl()
+      vim.api.nvim_set_hl(0, 'MiniStatuslineModeModified', { fg = '#1a1b26', bg = '#ff9e3b', bold = true })
+      vim.api.nvim_set_hl(0, 'MiniStatuslineRepo',         { fg = '#1abc9c', bg = '#3b4261' })
+    end
+    set_modified_hl()
+    vim.api.nvim_create_autocmd('ColorScheme', { callback = set_modified_hl })
+
+    ---@diagnostic disable-next-line: duplicate-set-field
+    statusline.active = function()
+      local mode, mode_hl = statusline.section_mode { trunc_width = 120 }
+      local git           = statusline.section_git { trunc_width = 40 }
+      local diff          = statusline.section_diff { trunc_width = 75 }
+      local diagnostics   = statusline.section_diagnostics { trunc_width = 75 }
+      local lsp           = statusline.section_lsp { trunc_width = 75 }
+      local location      = statusline.section_location()
+      local search        = statusline.section_searchcount { trunc_width = 75 }
+
+      local repo = (vim.b.gitsigns_head or '') ~= '' and (' ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t')) or ''
+      local filename
+      if repo ~= '' then
+        local abs = vim.api.nvim_buf_get_name(0)
+        filename = abs ~= '' and vim.fn.fnamemodify(abs, ':.') or '[No Name]'
+      else
+        filename = statusline.section_filename { trunc_width = 140 }
+      end
+      local location_hl = vim.bo.modified and 'MiniStatuslineModeModified' or mode_hl
+
+      return statusline.combine_groups {
+        { hl = mode_hl,                  strings = { mode } },
+        { hl = 'MiniStatuslineRepo',     strings = { repo } },
+        { hl = 'MiniStatuslineDevinfo',  strings = { git, diff, diagnostics, lsp } },
+        '%<',
+        { hl = 'MiniStatuslineFilename', strings = { filename } },
+        '%=',
+        { hl = location_hl,              strings = { search, location } },
+      }
+    end
+
     -- ... and there is more!
     --  Check out: https://github.com/nvim-mini/mini.nvim
   end,
