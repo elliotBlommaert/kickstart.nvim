@@ -15,6 +15,13 @@ return {
         mappings = {
           ['<space>'] = 'open',
           ['<cr>'] = 'toggle_node',
+          ['u'] = function(state)
+            local node = state.tree:get_node()
+            local parent_id = node:get_parent_id()
+            if parent_id then
+              require('neo-tree.ui.renderer').focus_node(state, parent_id)
+            end
+          end,
         },
       },
       filesystem = {

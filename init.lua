@@ -246,6 +246,54 @@ require('lazy').setup({
   },
   {
     'sindrets/diffview.nvim',
+    cmd = { 'DiffviewOpen', 'DiffviewFileHistory', 'DiffviewClose' },
+    keys = {
+      { '<leader>dd', '<cmd>DiffviewOpen<cr>',             desc = '[D]iff open' },
+      { '<leader>df', '<cmd>DiffviewFileHistory<cr>',      desc = '[D]iff [f]ile history' },
+      { '<leader>dF', '<cmd>DiffviewFileHistory %<cr>',    desc = '[D]iff [F]ile history (current file)', mode = 'n' },
+      {
+        '<leader>dF',
+        ":'<,'>DiffviewFileHistory<cr>",
+        desc = '[D]iff [F]ile history (range)',
+        mode = 'v',
+      },
+      {
+        '<leader>db',
+        function()
+          require('telescope.builtin').git_branches {
+            attach_mappings = function(prompt_bufnr, _)
+              local actions = require 'telescope.actions'
+              local action_state = require 'telescope.actions.state'
+              actions.select_default:replace(function()
+                actions.close(prompt_bufnr)
+                local branch = action_state.get_selected_entry().name
+                vim.cmd('DiffviewOpen ' .. branch)
+              end)
+              return true
+            end,
+          }
+        end,
+        desc = '[D]iff against [b]ranch',
+      },
+      {
+        '<leader>dm',
+        function()
+          vim.ui.input({ prompt = 'Diff against (branch / tag / commit): ' }, function(input)
+            if input and input ~= '' then
+              vim.cmd('DiffviewOpen ' .. input)
+            end
+          end)
+        end,
+        desc = '[D]iff against [m]anual ref',
+      },
+    },
+    opts = {
+      view = {
+        merge_tool = {
+          layout = 'diff3_mixed',
+        },
+      },
+    },
   },
   {
     'NeogitOrg/neogit',
@@ -262,7 +310,6 @@ require('lazy').setup({
       { '<leader>gf', '<cmd>Neogit fetch<cr>',                                    desc = '[G]it [f]etch' },
       { '<leader>gp', '<cmd>Neogit push<cr>',                                     desc = '[G]it [p]ush' },
       { '<leader>gl', '<cmd>Neogit pull<cr>',                                     desc = '[G]it pu[l]l' },
-      { '<leader>gd', '<cmd>DiffviewOpen<cr>',                                    desc = '[G]it [d]iff' },
       { '<leader>gb', function() require('telescope.builtin').git_branches() end, desc = '[G]it [b]ranches' },
     },
     opts = {
@@ -330,6 +377,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch',   mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>g', group = '[G]it' },
+        { '<leader>d', group = '[D]iff',     mode = { 'n', 'v' } },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
