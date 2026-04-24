@@ -89,3 +89,6 @@ vim.keymap.set('n', 'µc', ']c', { remap = true, desc = 'Next diff hunk' })
 
 vim.keymap.set('n', 'ùq', '<cmd>cprev<cr>', { desc = 'Previous quickfix item' })
 vim.keymap.set('n', 'µq', '<cmd>cnext<cr>', { desc = 'Next quickfix item' })
+
+vim.keymap.set('n', 'ùx', '[x', { remap = true, desc = 'Prev diffview hunk' })
+vim.keymap.set('n', 'µx', ']x', { remap = true, desc = 'Next diffview hunk' })
