@@ -92,3 +92,6 @@ vim.keymap.set('n', 'µq', '<cmd>cnext<cr>', { desc = 'Next quickfix item' })
 
 vim.keymap.set('n', 'ùx', '[x', { remap = true, desc = 'Prev diffview hunk' })
 vim.keymap.set('n', 'µx', ']x', { remap = true, desc = 'Next diffview hunk' })
+
+vim.keymap.set('n', 'ùf', function() require('mini.ai').move_cursor('left', 'a', 'F', { search_method = 'prev' }) end, { desc = 'Prev function definition' })
+vim.keymap.set('n', 'µf', function() require('mini.ai').move_cursor('left', 'a', 'F', { search_method = 'next' }) end, { desc = 'Next function definition' })
