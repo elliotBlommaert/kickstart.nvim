@@ -117,7 +117,7 @@ return { -- Main LSP Configuration
         },
       },
       ruff = {},
-      -- rust_analyzer = {},
+      -- rust_analyzer is handled separately below (Mason package name differs)
       --
       -- Some languages (like typescript) have entire language plugins that can be useful:
       --    https://github.com/pmizio/typescript-tools.nvim
@@ -135,9 +135,9 @@ return { -- Main LSP Configuration
     -- You can press `g?` for help in this menu.
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
-      'lua-language-server', -- Lua Language server
-      'stylua',              -- Used to format Lua code
-      -- You can add other tools here that you want Mason to install
+      'lua-language-server',
+      'stylua',
+      'rust-analyzer',
     })
 
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -148,6 +148,9 @@ return { -- Main LSP Configuration
       vim.lsp.config(name, server)
       vim.lsp.enable(name)
     end
+
+    vim.lsp.config('rust_analyzer', { capabilities = capabilities })
+    vim.lsp.enable 'rust_analyzer'
 
     -- Special Lua Config, as recommended by neovim help docs
     vim.lsp.config('lua_ls', {
