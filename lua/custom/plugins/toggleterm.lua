@@ -28,9 +28,7 @@ return {
 
     -- Close terminal if open, otherwise do nothing
     vim.keymap.set('n', 'T', function()
-      if bottom:is_open() then
-        bottom:close()
-      end
+      if bottom:is_open() then bottom:close() end
     end, { desc = 'Close terminal' })
 
     -- Maximize/restore terminal height
@@ -60,13 +58,8 @@ return {
     -- Open terminal and rerun previous command
     vim.keymap.set('n', '<leader>r', function()
       local prev_win = vim.api.nvim_get_current_win()
-      if not bottom:is_open() then
-        bottom:open()
-      end
-      vim.schedule(function()
-        vim.fn.chansend(bottom.job_id, '\027[A\r')
-        vim.api.nvim_set_current_win(prev_win)
-      end)
+      if not bottom:is_open() then bottom:open() end
+      vim.schedule(function() vim.fn.chansend(bottom.job_id, '\027[A\r') end)
     end, { desc = '[R]erun previous terminal command' })
 
     -- Exit terminal mode
