@@ -55,6 +55,8 @@ end)
 -- Make <C-c> fire InsertLeave (unlike the default hard interrupt behaviour)
 vim.keymap.set('i', '<C-c>', '<Esc>', { desc = 'Exit insert mode' })
 
+vim.keymap.set('n', '<BS>', '<C-^>', { desc = 'Switch to alternate buffer' })
+
 -- Reselect visual selection after indenting
 vim.keymap.set('v', '<', '<gv', { desc = 'Indent left and reselect' })
 vim.keymap.set('v', '>', '>gv', { desc = 'Indent right and reselect' })
