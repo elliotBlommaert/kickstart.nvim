@@ -205,6 +205,16 @@ vim.api.nvim_create_autocmd('VimEnter', {
   end,
 })
 
+vim.api.nvim_create_autocmd('VimEnter', {
+  desc = 'Open Telescope file search on startup when no file is given',
+  group = vim.api.nvim_create_augroup('telescope-on-start', { clear = true }),
+  callback = function()
+    if vim.fn.argc() == 0 then
+      vim.schedule(function() require('telescope.builtin').find_files() end)
+    end
+  end,
+})
+
 vim.filetype.add {
   extension = { zsh = 'zsh', jinja = 'jinja', jinja2 = 'jinja', j2 = 'jinja' },
   filename = {
@@ -378,7 +388,8 @@ require('lazy').setup({
       -- Document existing key chains
       spec = {
         { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
-        { '<leader>t', group = '[T]oggle' },
+        { '<leader>T', group = '[T]oggle' },
+        { '<leader>t', group = '[T]erminal' },
         { '<leader>g', group = '[G]it' },
         { '<leader>d', group = '[D]iff', mode = { 'n', 'v' } },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
@@ -432,6 +443,12 @@ require('lazy').setup({
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
     },
+  },
+
+  { -- Rust support via rustaceanvim
+    'mrcjkb/rustaceanvim',
+    version = '^5',
+    lazy = false,
   },
 
   { -- Autocompletion
@@ -556,7 +573,8 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     config = function()
-      local filetypes = { 'zsh', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python', 'jinja', 'rust' }
+      local filetypes =
+        { 'zsh', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python', 'jinja', 'rust' }
       require('nvim-treesitter').install(filetypes)
       vim.api.nvim_create_autocmd('FileType', {
         pattern = filetypes,

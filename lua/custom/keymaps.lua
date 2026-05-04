@@ -34,7 +34,7 @@ vim.diagnostic.config {
   jump = { float = true },
 }
 
-vim.keymap.set('n', '<leader>td', function()
+vim.keymap.set('n', '<leader>Td', function()
   if vim.diagnostic.is_enabled() then
     vim.diagnostic.enable(false)
   else
@@ -42,7 +42,7 @@ vim.keymap.set('n', '<leader>td', function()
   end
 end, { desc = 'Toggle diagnostics' })
 
-vim.keymap.set('n', '<leader>tC', function() require('copilot.suggestion').toggle_auto_trigger() end,
+vim.keymap.set('n', '<leader>TC', function() require('copilot.suggestion').toggle_auto_trigger() end,
   { desc = 'Toggle [C]opilot auto suggestions' })
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -82,9 +82,9 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
-vim.keymap.set('n', 'ùd', function() vim.diagnostic.goto_next { float = false } end, { desc = 'Go to next diagnostic' })
-vim.keymap.set('n', 'µd', function() vim.diagnostic.goto_prev { float = false } end,
+vim.keymap.set('n', 'ùd', function() vim.diagnostic.goto_prev { float = false } end,
   { desc = 'Go to previous diagnostic' })
+vim.keymap.set('n', 'µd', function() vim.diagnostic.goto_next { float = false } end, { desc = 'Go to next diagnostic' })
 
 vim.keymap.set('n', 'ùc', '[c', { remap = true, desc = 'Prev diff hunk' })
 vim.keymap.set('n', 'µc', ']c', { remap = true, desc = 'Next diff hunk' })
@@ -95,5 +95,34 @@ vim.keymap.set('n', 'µq', '<cmd>cnext<cr>', { desc = 'Next quickfix item' })
 vim.keymap.set('n', 'ùx', '[x', { remap = true, desc = 'Prev diffview hunk' })
 vim.keymap.set('n', 'µx', ']x', { remap = true, desc = 'Next diffview hunk' })
 
-vim.keymap.set('n', 'ùf', function() require('mini.ai').move_cursor('left', 'a', 'F', { search_method = 'prev' }) end, { desc = 'Prev function definition' })
-vim.keymap.set('n', 'µf', function() require('mini.ai').move_cursor('left', 'a', 'F', { search_method = 'next' }) end, { desc = 'Next function definition' })
+vim.keymap.set('n', 'ùf', function() require('mini.ai').move_cursor('left', 'a', 'F', { search_method = 'prev' }) end,
+  { desc = 'Prev function definition' })
+vim.keymap.set('n', 'µf', function() require('mini.ai').move_cursor('left', 'a', 'F', { search_method = 'next' }) end,
+  { desc = 'Next function definition' })
+
+-- Indent-based navigation
+local function indent_jump(direction, relation)
+  local curr_line = vim.api.nvim_win_get_cursor(0)[1]
+  local curr_indent = vim.fn.indent(curr_line)
+  local total_lines = vim.api.nvim_buf_line_count(0)
+  local step = direction == 'next' and 1 or -1
+  local line = curr_line + step
+
+  while line >= 1 and line <= total_lines do
+    local text = vim.api.nvim_buf_get_lines(0, line - 1, line, false)[1]
+    if text:match '%S' and not text:match '^%s*}%s*$' then
+      local indent = vim.fn.indent(line)
+      local match = (relation == 'same' and indent == curr_indent) or (relation == 'different' and indent ~= curr_indent)
+      if match then
+        vim.api.nvim_win_set_cursor(0, { line, text:find '%S' - 1 })
+        return
+      end
+    end
+    line = line + step
+  end
+end
+
+vim.keymap.set('n', 'ùe', function() indent_jump('prev', 'different') end, { desc = 'Prev line with different indent' })
+vim.keymap.set('n', 'µe', function() indent_jump('next', 'different') end, { desc = 'Next line with different indent' })
+vim.keymap.set('n', 'ùr', function() indent_jump('prev', 'same') end, { desc = 'Prev line with same indent' })
+vim.keymap.set('n', 'µr', function() indent_jump('next', 'same') end, { desc = 'Next line with same indent' })

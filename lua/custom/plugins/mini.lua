@@ -50,6 +50,8 @@ return { -- Collection of various small independent plugins/modules
         goto_right = 'gµ',
       },
       custom_textobjects = {
+        -- Function/macro calls (Treesitter-powered; handles Rust macros like println!())
+        f = ai.gen_spec.treesitter { a = '@call.outer', i = '@call.inner' },
         -- Function definitions (Treesitter-powered)
         F = ai.gen_spec.treesitter { a = '@function.outer', i = '@function.inner' },
         -- Class definitions

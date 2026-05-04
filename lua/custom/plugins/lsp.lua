@@ -8,7 +8,7 @@ return { -- Main LSP Configuration
     'WhoIsSethDaniel/mason-tool-installer.nvim',
 
     -- Useful status updates for LSP.
-    { 'j-hui/fidget.nvim', opts = {} },
+    { 'j-hui/fidget.nvim',    opts = {} },
 
     -- Allows extra capabilities provided by blink.cmp
     'saghen/blink.cmp',
@@ -83,7 +83,7 @@ return { -- Main LSP Configuration
         --
         -- This may be unwanted, since they displace some of your code
         if client and client:supports_method('textDocument/inlayHint', event.buf) then
-          map('<leader>th',
+          map('<leader>Th',
             function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end,
             '[T]oggle Inlay [H]ints')
         end
@@ -137,7 +137,6 @@ return { -- Main LSP Configuration
     vim.list_extend(ensure_installed, {
       'lua-language-server',
       'stylua',
-      'rust-analyzer',
     })
 
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -148,9 +147,6 @@ return { -- Main LSP Configuration
       vim.lsp.config(name, server)
       vim.lsp.enable(name)
     end
-
-    vim.lsp.config('rust_analyzer', { capabilities = capabilities })
-    vim.lsp.enable 'rust_analyzer'
 
     -- Special Lua Config, as recommended by neovim help docs
     vim.lsp.config('lua_ls', {
