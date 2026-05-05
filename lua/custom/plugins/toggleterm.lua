@@ -17,7 +17,7 @@ return {
     local bottom = Terminal:new { direction = 'horizontal' }
 
     -- Focus terminal (open if needed), stay in normal mode
-    vim.keymap.set('n', '<leader>ti', function()
+    vim.keymap.set('n', '<leader>ri', function()
       if bottom:is_open() then
         vim.api.nvim_set_current_win(bottom.window)
       else
@@ -26,7 +26,7 @@ return {
       vim.schedule(function() vim.cmd 'startinsert' end)
     end, { desc = 'Go to terminal' })
 
-    vim.keymap.set('n', '<leader>tn', function()
+    vim.keymap.set('n', '<leader>rn', function()
       if bottom:is_open() then
         vim.api.nvim_set_current_win(bottom.window)
       else
@@ -36,7 +36,7 @@ return {
     end, { desc = 'Go to terminal' })
 
     -- Toggle terminal open/close
-    vim.keymap.set('n', '<leader>tt', function()
+    vim.keymap.set('n', '<leader>rr', function()
       if bottom:is_open() then
         bottom:close()
       else
@@ -63,7 +63,7 @@ return {
     vim.keymap.set('n', '<C-f>', function() vim.schedule(toggle_maximize) end, { desc = 'Toggle terminal fullscreen' })
 
     -- Focus terminal in normal mode and maximize it
-    vim.keymap.set('n', '<leader>tf', function()
+    vim.keymap.set('n', '<leader>rf', function()
       if not bottom:is_open() then bottom:open() end
       vim.api.nvim_set_current_win(bottom.window)
       vim.cmd 'stopinsert'
@@ -72,7 +72,7 @@ return {
     end, { desc = 'Focus and maximize terminal' })
 
     -- Open terminal and rerun previous command
-    vim.keymap.set('n', '<leader>tp', function()
+    vim.keymap.set('n', '<leader>rp', function()
       if not bottom:is_open() then bottom:open() end
       vim.schedule(function() vim.fn.chansend(bottom.job_id, '\027[A\r') end)
     end, { desc = '[R]erun previous terminal command' })

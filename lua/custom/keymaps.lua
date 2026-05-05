@@ -99,6 +99,10 @@ vim.keymap.set('n', 'ùf', function() require('mini.ai').move_cursor('left', 'a'
   { desc = 'Prev function definition' })
 vim.keymap.set('n', 'µf', function() require('mini.ai').move_cursor('left', 'a', 'F', { search_method = 'next' }) end,
   { desc = 'Next function definition' })
+vim.keymap.set('n', 'ùa', function() require('mini.ai').move_cursor('left', 'a', 'a', { search_method = 'prev' }) end,
+  { desc = 'Prev argument' })
+vim.keymap.set('n', 'µa', function() require('mini.ai').move_cursor('left', 'a', 'a', { search_method = 'next' }) end,
+  { desc = 'Next argument' })
 
 -- Indent-based navigation
 local function indent_jump(direction, relation)
