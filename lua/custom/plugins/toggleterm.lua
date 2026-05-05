@@ -20,11 +20,10 @@ return {
     vim.keymap.set('n', '<leader>ti', function()
       if bottom:is_open() then
         vim.api.nvim_set_current_win(bottom.window)
-        vim.schedule(function() vim.cmd 'startinsert' end)
       else
         bottom:open()
-        vim.cmd 'startinsert'
       end
+      vim.schedule(function() vim.cmd 'startinsert' end)
     end, { desc = 'Go to terminal' })
 
     vim.keymap.set('n', '<leader>tn', function()
@@ -35,6 +34,15 @@ return {
         vim.cmd 'stopinsert'
       end
     end, { desc = 'Go to terminal' })
+
+    -- Toggle terminal open/close
+    vim.keymap.set('n', '<leader>tt', function()
+      if bottom:is_open() then
+        bottom:close()
+      else
+        bottom:open()
+      end
+    end, { desc = 'Toggle terminal' })
 
     -- Close terminal if open, otherwise do nothing
     vim.keymap.set('n', 'T', function()
