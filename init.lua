@@ -205,16 +205,6 @@ vim.api.nvim_create_autocmd('VimEnter', {
   end,
 })
 
-vim.api.nvim_create_autocmd('VimEnter', {
-  desc = 'Open Telescope file search on startup when no file is given',
-  group = vim.api.nvim_create_augroup('telescope-on-start', { clear = true }),
-  callback = function()
-    if vim.fn.argc() == 0 then
-      vim.schedule(function() require('telescope.builtin').find_files() end)
-    end
-  end,
-})
-
 vim.filetype.add {
   extension = { zsh = 'zsh', jinja = 'jinja', jinja2 = 'jinja', j2 = 'jinja' },
   filename = {
@@ -251,15 +241,11 @@ rtp:prepend(lazypath)
 
 require('lazy').setup({
   {
-    'karb94/neoscroll.nvim',
-    opts = {},
-  },
-  {
     'sindrets/diffview.nvim',
     cmd = { 'DiffviewOpen', 'DiffviewFileHistory', 'DiffviewClose' },
     keys = {
-      { '<leader>dd', '<cmd>DiffviewOpen<cr>', desc = '[D]iff open' },
-      { '<leader>df', '<cmd>DiffviewFileHistory<cr>', desc = '[D]iff [f]ile history' },
+      { '<leader>dd', '<cmd>DiffviewOpen<cr>',          desc = '[D]iff open' },
+      { '<leader>df', '<cmd>DiffviewFileHistory<cr>',   desc = '[D]iff [f]ile history' },
       { '<leader>dF', '<cmd>DiffviewFileHistory %<cr>', desc = '[D]iff [F]ile history (current file)', mode = 'n' },
       {
         '<leader>dF',
@@ -307,17 +293,17 @@ require('lazy').setup({
     'NeogitOrg/neogit',
     lazy = true,
     dependencies = {
-      'nvim-lua/plenary.nvim', -- required
-      'sindrets/diffview.nvim', -- optional
+      'nvim-lua/plenary.nvim',         -- required
+      'sindrets/diffview.nvim',        -- optional
       'nvim-telescope/telescope.nvim', -- optional
     },
     cmd = 'Neogit',
     keys = {
-      { '<leader>gg', '<cmd>Neogit<cr>', desc = '[G]it open' },
-      { '<leader>gc', '<cmd>Neogit log<cr>', desc = '[G]it [c]ommits' },
-      { '<leader>gf', '<cmd>Neogit fetch<cr>', desc = '[G]it [f]etch' },
-      { '<leader>gp', '<cmd>Neogit push<cr>', desc = '[G]it [p]ush' },
-      { '<leader>gl', '<cmd>Neogit pull<cr>', desc = '[G]it pu[l]l' },
+      { '<leader>gg', '<cmd>Neogit<cr>',                                          desc = '[G]it open' },
+      { '<leader>gc', '<cmd>Neogit log<cr>',                                      desc = '[G]it [c]ommits' },
+      { '<leader>gf', '<cmd>Neogit fetch<cr>',                                    desc = '[G]it [f]etch' },
+      { '<leader>gp', '<cmd>Neogit push<cr>',                                     desc = '[G]it [p]ush' },
+      { '<leader>gl', '<cmd>Neogit pull<cr>',                                     desc = '[G]it pu[l]l' },
       { '<leader>gb', function() require('telescope.builtin').git_branches() end, desc = '[G]it [b]ranches' },
     },
     opts = {
@@ -387,11 +373,11 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
+        { '<leader>s', group = '[S]earch',   mode = { 'n', 'v' } },
         { '<leader>T', group = '[T]oggle' },
         { '<leader>t', group = '[T]erminal' },
         { '<leader>g', group = '[G]it' },
-        { '<leader>d', group = '[D]iff', mode = { 'n', 'v' } },
+        { '<leader>d', group = '[D]iff',     mode = { 'n', 'v' } },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -473,9 +459,7 @@ require('lazy').setup({
           --    https://github.com/rafamadriz/friendly-snippets
           {
             'rafamadriz/friendly-snippets',
-            config = function()
-              require('luasnip.loaders.from_vscode').lazy_load()
-            end,
+            config = function() require('luasnip.loaders.from_vscode').lazy_load() end,
           },
         },
         opts = {},
@@ -567,14 +551,15 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim',  event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     config = function()
       local filetypes =
-        { 'zsh', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python', 'jinja', 'rust' }
+      { 'zsh', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+        'python', 'jinja', 'rust' }
       require('nvim-treesitter').install(filetypes)
       vim.api.nvim_create_autocmd('FileType', {
         pattern = filetypes,

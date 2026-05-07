@@ -46,7 +46,7 @@ return { -- Collection of various small independent plugins/modules
     ai.setup {
       n_lines = 500,
       mappings = {
-        goto_left  = 'gù',
+        goto_left = 'gù',
         goto_right = 'gµ',
       },
       custom_textobjects = {
@@ -68,7 +68,7 @@ return { -- Collection of various small independent plugins/modules
     -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
     -- - sd'   - [S]urround [D]elete [']quotes
     -- - sr)'  - [S]urround [R]eplace [)] [']
-    require('mini.surround').setup()
+    -- require('mini.surround').setup()
 
     -- Simple and easy statusline.
     --  You could remove this setup call if you don't like it,
@@ -87,7 +87,7 @@ return { -- Collection of various small independent plugins/modules
     -- Give the repo name its own teal colour while sharing the devinfo background.
     local function set_modified_hl()
       vim.api.nvim_set_hl(0, 'MiniStatuslineModeModified', { fg = '#1a1b26', bg = '#ff9e3b', bold = true })
-      vim.api.nvim_set_hl(0, 'MiniStatuslineRepo',         { fg = '#1abc9c', bg = '#3b4261' })
+      vim.api.nvim_set_hl(0, 'MiniStatuslineRepo', { fg = '#1abc9c', bg = '#3b4261' })
     end
     set_modified_hl()
     vim.api.nvim_create_autocmd('ColorScheme', { callback = set_modified_hl })
@@ -95,12 +95,12 @@ return { -- Collection of various small independent plugins/modules
     ---@diagnostic disable-next-line: duplicate-set-field
     statusline.active = function()
       local mode, mode_hl = statusline.section_mode { trunc_width = 120 }
-      local git           = statusline.section_git { trunc_width = 40 }
-      local diff          = statusline.section_diff { trunc_width = 75 }
-      local diagnostics   = statusline.section_diagnostics { trunc_width = 75 }
-      local lsp           = statusline.section_lsp { trunc_width = 75 }
-      local location      = statusline.section_location()
-      local search        = statusline.section_searchcount { trunc_width = 75 }
+      local git = statusline.section_git { trunc_width = 40 }
+      local diff = statusline.section_diff { trunc_width = 75 }
+      local diagnostics = statusline.section_diagnostics { trunc_width = 75 }
+      local lsp = statusline.section_lsp { trunc_width = 75 }
+      local location = statusline.section_location()
+      local search = statusline.section_searchcount { trunc_width = 75 }
 
       local repo = (vim.b.gitsigns_head or '') ~= '' and (' ' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':t')) or ''
       local filename
@@ -113,13 +113,13 @@ return { -- Collection of various small independent plugins/modules
       local location_hl = vim.bo.modified and 'MiniStatuslineModeModified' or mode_hl
 
       return statusline.combine_groups {
-        { hl = mode_hl,                  strings = { mode } },
-        { hl = 'MiniStatuslineRepo',     strings = { repo } },
-        { hl = 'MiniStatuslineDevinfo',  strings = { git, diff, diagnostics, lsp } },
+        { hl = mode_hl, strings = { mode } },
+        { hl = 'MiniStatuslineRepo', strings = { repo } },
+        { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics, lsp } },
         '%<',
         { hl = 'MiniStatuslineFilename', strings = { filename } },
         '%=',
-        { hl = location_hl,              strings = { search, location } },
+        { hl = location_hl, strings = { search, location } },
       }
     end
 
