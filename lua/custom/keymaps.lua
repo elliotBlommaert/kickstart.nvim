@@ -4,7 +4,6 @@
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-vim.keymap.set('n', 'q', '<cmd>tabclose<CR>', { desc = 'Close tab' })
 
 -- Copy visual selection as @file:start-end reference to clipboard (for Claude Code)
 vim.keymap.set('v', '<leader>cy', function()
