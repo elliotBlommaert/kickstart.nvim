@@ -44,11 +44,6 @@ return {
       end
     end, { desc = 'Toggle terminal' })
 
-    -- Close terminal if open, otherwise do nothing
-    vim.keymap.set('n', 'T', function()
-      if bottom:is_open() then bottom:close() end
-    end, { desc = 'Close terminal' })
-
     -- Maximize/restore terminal height
     local maximized = false
     local function toggle_maximize()
@@ -62,14 +57,24 @@ return {
     vim.keymap.set('t', '<C-f>', function() vim.schedule(toggle_maximize) end, { desc = 'Toggle terminal fullscreen' })
     vim.keymap.set('n', '<C-f>', function() vim.schedule(toggle_maximize) end, { desc = 'Toggle terminal fullscreen' })
 
-    -- Focus terminal in normal mode and maximize it
+    -- Toggle terminal: open maximized → maximize → minimize
     vim.keymap.set('n', '<leader>rf', function()
-      if not bottom:is_open() then bottom:open() end
-      vim.api.nvim_set_current_win(bottom.window)
-      vim.cmd 'stopinsert'
-      vim.cmd('resize ' .. (vim.o.lines - 2))
-      maximized = true
-    end, { desc = 'Focus and maximize terminal' })
+      if not bottom:is_open() then
+        bottom:open()
+        vim.api.nvim_set_current_win(bottom.window)
+        vim.cmd 'stopinsert'
+        vim.cmd('resize ' .. (vim.o.lines - 2))
+        maximized = true
+      elseif not maximized then
+        vim.api.nvim_set_current_win(bottom.window)
+        vim.cmd 'stopinsert'
+        vim.cmd('resize ' .. (vim.o.lines - 2))
+        maximized = true
+      else
+        vim.cmd 'resize 15'
+        maximized = false
+      end
+    end, { desc = 'Toggle maximize terminal' })
 
     -- Open terminal and rerun previous command
     vim.keymap.set('n', '<leader>rp', function()

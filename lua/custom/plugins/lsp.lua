@@ -141,7 +141,7 @@ return { -- Main LSP Configuration
 
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-    vim.lsp.set_log_level 'debug'
+    vim.lsp.set_log_level 'warn'
     for name, server in pairs(servers) do
       server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
       vim.lsp.config(name, server)
