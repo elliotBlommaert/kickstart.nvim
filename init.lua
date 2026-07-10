@@ -377,6 +377,7 @@ require('lazy').setup({
         { '<leader>T', group = '[T]oggle' },
         { '<leader>t', group = '[T]erminal' },
         { '<leader>g', group = '[G]it' },
+        { '<leader>O', group = '[O]cto (GitHub)' },
         { '<leader>d', group = '[D]iff',     mode = { 'n', 'v' } },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
