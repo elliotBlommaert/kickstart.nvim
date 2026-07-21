@@ -380,6 +380,8 @@ require('lazy').setup({
         { '<leader>O', group = '[O]cto (GitHub)' },
         { '<leader>d', group = '[D]iff',     mode = { 'n', 'v' } },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>c', group = '[C]laude',   mode = { 'n', 'v' } },
+        { '<leader>y', group = '[Y]ank' },
       },
     },
   },

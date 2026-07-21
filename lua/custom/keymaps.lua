@@ -17,6 +17,19 @@ vim.keymap.set('v', '<leader>cy', function()
   vim.notify('Copied: ' .. ref, vim.log.levels.INFO)
 end, { desc = '[C]laude [Y]ank selection reference' })
 
+-- Yank the current file's path to clipboard
+vim.keymap.set('n', '<leader>yy', function()
+  local path = vim.fn.expand '%:p'
+  vim.fn.setreg('+', path)
+  vim.notify('Copied: ' .. path, vim.log.levels.INFO)
+end, { desc = '[Y]ank absolute filepath' })
+
+vim.keymap.set('n', '<leader>yr', function()
+  local path = vim.fn.expand '%:.'
+  vim.fn.setreg('+', path)
+  vim.notify('Copied: ' .. path, vim.log.levels.INFO)
+end, { desc = '[Y]ank [R]elative filepath' })
+
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
 vim.diagnostic.config {
