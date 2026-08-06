@@ -436,7 +436,7 @@ require('lazy').setup({
 
   { -- Rust support via rustaceanvim
     'mrcjkb/rustaceanvim',
-    version = '^5',
+    version = '^9',
     lazy = false,
   },
 
