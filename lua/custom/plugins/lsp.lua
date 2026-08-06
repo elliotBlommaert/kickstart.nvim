@@ -103,6 +103,13 @@ return { -- Main LSP Configuration
       -- clangd = {},
       -- gopls = {},
       basedpyright = {
+        -- One client per git repo. The default markers put `pyproject.toml` ahead
+        -- of `.git`, so in a uv workspace every member becomes its own root: cross-
+        -- member references and renames go missing, and a shared `.venv` at the
+        -- workspace root is invisible to the members (`venvPath` is relative to the
+        -- root). `.git` first roots the whole workspace as one project, while nested
+        -- checkouts (vendored repos with their own `.git`) still get their own.
+        root_markers = { '.git', 'pyrightconfig.json', 'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt', 'Pipfile' },
         settings = {
           basedpyright = {
             analysis = {
