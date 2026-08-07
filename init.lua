@@ -196,14 +196,42 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function() vim.hl.on_yank() end,
 })
 
+local function git_root()
+  local root = vim.fn.systemlist('git rev-parse --show-toplevel 2>/dev/null')[1]
+  if vim.v.shell_error == 0 and root and root ~= '' then return root end
+end
+
 vim.api.nvim_create_autocmd('VimEnter', {
-  desc = 'Set cwd to git root if inside a git repo',
+  desc = 'Set cwd to git root if inside a git repo (unless NVIM_CWD_HERE is set)',
   group = vim.api.nvim_create_augroup('git-root-cwd', { clear = true }),
   callback = function()
-    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel 2>/dev/null')[1]
-    if vim.v.shell_error == 0 and git_root and git_root ~= '' then vim.cmd('cd ' .. vim.fn.fnameescape(git_root)) end
+    if vim.env.NVIM_CWD_HERE then return end
+    local root = git_root()
+    if root then vim.cmd('cd ' .. vim.fn.fnameescape(root)) end
   end,
 })
+
+vim.api.nvim_create_user_command('Root', function()
+  local root = git_root()
+  if not root then return vim.notify('Not inside a git repo', vim.log.levels.WARN) end
+  vim.cmd('cd ' .. vim.fn.fnameescape(root))
+  vim.notify('cwd → ' .. root)
+end, { desc = 'Set cwd to the git root' })
+
+vim.api.nvim_create_user_command('Here', function()
+  local name = vim.api.nvim_buf_get_name(0)
+  local dir
+  if name:match '^oil://' then
+    -- expand() can't resolve oil's URI scheme; ask oil for the real path instead.
+    dir = require('oil').get_current_dir()
+  elseif name ~= '' and not name:match '^%a[%w+.-]*://' then
+    dir = vim.fn.fnamemodify(name, ':p:h')
+  end
+  if not dir or vim.fn.isdirectory(dir) == 0 then return vim.notify('No directory for this buffer', vim.log.levels.WARN) end
+  dir = vim.fn.fnamemodify(dir, ':p'):gsub('/$', '')
+  vim.cmd('cd ' .. vim.fn.fnameescape(dir))
+  vim.notify('cwd → ' .. dir)
+end, { desc = "Set cwd to the current buffer's directory" })
 
 vim.filetype.add {
   extension = { zsh = 'zsh', jinja = 'jinja', jinja2 = 'jinja', j2 = 'jinja' },
