@@ -401,14 +401,14 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>s', group = '[S]earch',   mode = { 'n', 'v' } },
+        { '<leader>s', group = '[S]earch',       mode = { 'n', 'v' } },
         { '<leader>T', group = '[T]oggle' },
         { '<leader>t', group = '[T]erminal' },
         { '<leader>g', group = '[G]it' },
         { '<leader>O', group = '[O]cto (GitHub)' },
-        { '<leader>d', group = '[D]iff',     mode = { 'n', 'v' } },
-        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
-        { '<leader>c', group = '[C]laude',   mode = { 'n', 'v' } },
+        { '<leader>d', group = '[D]iff',         mode = { 'n', 'v' } },
+        { '<leader>h', group = 'Git [H]unk',     mode = { 'n', 'v' } },
+        { '<leader>c', group = '[C]laude',       mode = { 'n', 'v' } },
         { '<leader>y', group = '[Y]ank' },
       },
     },
@@ -631,27 +631,6 @@ require('lazy').setup({
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
-
-  {
-    'zbirenbaum/copilot.lua',
-    cmd = 'Copilot',
-    event = 'VeryLazy',
-    opts = {
-      suggestion = {
-        enabled = true,
-        auto_trigger = true,
-        keymap = {
-          accept = '<M-l>',
-          accept_word = '<C-Right>',
-          accept_line = '<C-Down>',
-          next = '<M-]>',
-          prev = '<M-[>',
-          dismiss = '<C-]>',
-        },
-      },
-      panel = { enabled = false },
-    },
-  },
 
   {
     'MeanderingProgrammer/render-markdown.nvim',
