@@ -181,5 +181,10 @@ return { -- Main LSP Configuration
       },
     })
     vim.lsp.enable 'lua_ls'
+
+    -- dartls ships with the Dart SDK (`dart language-server`), not Mason,
+    -- so it stays out of `servers` and needs `dart` on PATH.
+    vim.lsp.config('dartls', { capabilities = capabilities })
+    vim.lsp.enable 'dartls'
   end,
 }
