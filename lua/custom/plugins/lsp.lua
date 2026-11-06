@@ -5,6 +5,7 @@ return { -- Main LSP Configuration
     -- Mason must be loaded before its dependents so we need to set it up here.
     -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
     { 'mason-org/mason.nvim', opts = {} },
+    'mason-org/mason-lspconfig.nvim',
     'WhoIsSethDaniel/mason-tool-installer.nvim',
 
     -- Useful status updates for LSP.
@@ -96,6 +97,8 @@ return { -- Main LSP Configuration
     --  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
     local capabilities = require('blink.cmp').get_lsp_capabilities()
 
+    local vue_ls_path = vim.fn.stdpath 'data' .. '/mason/packages/vue-language-server/node_modules/@vue/language-server'
+
     -- Enable the following language servers
     --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
     --  See `:help lsp-config` for information about keys and how to configure
@@ -124,6 +127,28 @@ return { -- Main LSP Configuration
         },
       },
       ruff = {},
+      vue_ls = {},
+      vtsls = {
+        -- Attach vtsls to .vue files too, not just JS/TS.
+        filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue' },
+        settings = {
+          vtsls = {
+            tsserver = {
+              globalPlugins = {
+                {
+                  name = '@vue/typescript-plugin',
+                  location = vue_ls_path,
+                  languages = { 'vue' },
+                  configNamespace = 'typescript',
+                },
+              },
+            },
+          },
+        },
+      },
+      cssls = {},
+      eslint = {},
+      emmet_language_server = {},
       -- rust_analyzer is handled separately below (Mason package name differs)
       --
       -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -140,13 +165,19 @@ return { -- Main LSP Configuration
     --    :Mason
     --
     -- You can press `g?` for help in this menu.
-    local ensure_installed = vim.tbl_keys(servers or {})
-    vim.list_extend(ensure_installed, {
-      'lua-language-server',
-      'stylua',
-    })
 
-    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+    -- LSP servers: mason-lspconfig translates lspconfig names (vue_ls, cssls, …)
+    -- into Mason package names and installs them, so we can just hand it the
+    -- keys of our servers table.
+    require('mason-lspconfig').setup {
+      ensure_installed = vim.tbl_keys(servers),
+      automatic_enable = false, -- we enable them ourselves in the loop below
+    }
+    -- Non-server tools still go through mason-tool-installer, since
+    -- mason-lspconfig doesn't know about formatters/linters.
+    require('mason-tool-installer').setup {
+      ensure_installed = { 'lua-language-server', 'stylua' },
+    }
 
     vim.lsp.set_log_level 'warn'
     for name, server in pairs(servers) do
