@@ -96,6 +96,10 @@ return { -- Main LSP Configuration
     --  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
     --  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
     local capabilities = require('blink.cmp').get_lsp_capabilities()
+    -- Neovim disables file watching on Linux by default, so servers miss files
+    -- created outside the editor (e.g. by Claude Code). With inotify-tools
+    -- installed, Neovim uses inotifywait as a fast watcher backend.
+    capabilities.workspace = { didChangeWatchedFiles = { dynamicRegistration = true } }
 
     local vue_ls_path = vim.fn.stdpath 'data' .. '/mason/packages/vue-language-server/node_modules/@vue/language-server'
 
