@@ -61,23 +61,33 @@ return { -- Fuzzy Finder (files, lsp, etc)
         local buf = event.buf
 
         -- Find references for the word under your cursor.
-        vim.keymap.set('n', 'grr', function()
-          local clients = vim.lsp.get_clients { bufnr = 0 }
-          local has_basedpyright = vim.tbl_filter(function(c) return c.name == 'basedpyright' end, clients)
+        -- Imports are only skipped for Python (basedpyright), where they show up as references.
+        local function is_test_file(path)
+          local rel = '/' .. vim.fn.fnamemodify(path, ':.')
+          local name = vim.fs.basename(path)
+          return rel:match '/tests?/' ~= nil
+            or rel:match '/__tests__/' ~= nil
+            or name:match '^test_' ~= nil
+            or name:match '_test%.%w+$' ~= nil
+            or name:match '%.test%.%w+$' ~= nil
+            or name:match '%.spec%.%w+$' ~= nil
+            or name == 'conftest.py'
+        end
 
-          if #has_basedpyright > 0 then
-            builtin.lsp_references {
-              entry_maker = function(entry)
-                local made = require('telescope.make_entry').gen_from_quickfix()(entry)
-                if made and (entry.text:match '^%s*import%s' or entry.text:match '^%s*from%s+%S+%s+import%s') then return nil end
-                return made
-              end,
-            }
-          else
-            builtin.lsp_references()
-          end
-        end, { buffer = buf, desc = '[G]oto [R]eferences (excluding imports)' })
+        local function references(skip_tests)
+          local skip_imports = #vim.lsp.get_clients { bufnr = 0, name = 'basedpyright' } > 0
+          local make = require('telescope.make_entry').gen_from_quickfix()
+          builtin.lsp_references {
+            entry_maker = function(entry)
+              if skip_imports and (entry.text:match '^%s*import%s' or entry.text:match '^%s*from%s+%S+%s+import%s') then return nil end
+              if skip_tests and is_test_file(entry.filename) then return nil end
+              return make(entry)
+            end,
+          }
+        end
 
+        vim.keymap.set('n', 'grr', function() references(false) end, { buffer = buf, desc = '[G]oto [R]eferences (excluding imports)' })
+        vim.keymap.set('n', 'grp', function() references(true) end, { buffer = buf, desc = '[G]oto [P]roduction references (excluding imports and tests)' })
         vim.keymap.set('n', 'grR', builtin.lsp_references, { buffer = buf, desc = '[G]oto [R]eferences' })
 
         -- Jump to the implementation of the word under your cursor.
